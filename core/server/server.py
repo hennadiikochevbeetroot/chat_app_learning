@@ -1,4 +1,5 @@
 import os
+import signal
 import socket
 import threading
 
@@ -53,7 +54,7 @@ class ChatServer:
         thread = threading.Thread(target=self.handle_client, args=(client_socket,))
         thread.start()
 
-    def receive_messages(self):
+    def start(self):
         print('Chat Server started...')
         while True:
             client_socket, address = self.server_socket.accept()
@@ -69,4 +70,4 @@ class ChatServer:
 
 def run_server():
     chat_server = ChatServer()
-    chat_server.receive_messages()
+    chat_server.start()
