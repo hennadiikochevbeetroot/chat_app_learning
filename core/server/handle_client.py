@@ -1,4 +1,4 @@
-from socket import socket
+import socket
 
 
 def response_to_clients(data: bytes) -> bytes:
@@ -8,7 +8,7 @@ def response_to_clients(data: bytes) -> bytes:
     return response.encode('utf-8')
 
 
-def handle_client(client_socket: socket):
+def handle_client(client_socket: socket.socket):
     while True:
         data = client_socket.recv(1024)
         if not data:
