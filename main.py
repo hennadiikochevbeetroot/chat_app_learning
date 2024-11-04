@@ -1,4 +1,5 @@
 from core.server.server import run_server
+from core.client.client import run_client
 
 
 import argparse
@@ -13,4 +14,4 @@ args = parser.parse_args()
 if args.server:
     run_server()
 elif args.client:
-    print('Client!!')
+    run_client()
