@@ -1,13 +1,15 @@
+import os
 import socket
 import threading
 
-# Server settings
-HOST = '127.0.0.1'  # Localhost
-PORT = 5555  # Port to bind to
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 # Create server socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
+server_socket.bind((os.getenv('CHAT_HOST'), os.getenv('CHAT_PORT')))
 server_socket.listen()
 
 clients = {}
@@ -15,13 +17,14 @@ aliases = {}
 
 
 # Broadcast message to all clients
-def broadcast(message, sender=None):
+def broadcast(message: str, sender=None):
     for client in clients.keys():
-        client.send(f"{sender if sender else 'Server'}: {message}".encode())
+        content = f"{sender if sender else 'Server'}: {message}"
+        client.send(content.encode())
 
 
 # Handle individual client
-def handle_client(client_socket):
+def handle_client(client_socket: socket.socket):
     while True:
         try:
             message = client_socket.recv(1024).decode()
