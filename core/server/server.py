@@ -8,7 +8,7 @@ load_dotenv()
 
 
 class ChatServer:
-    def __init__(self):
+    def __init__(self) -> None:
         self.clients: list[socket.socket] = []
         self.nicknames: list[str] = []
 
@@ -19,7 +19,6 @@ class ChatServer:
         host, port = os.getenv('CHAT_HOST'), int(os.getenv('CHAT_PORT', 5555))
         server_socket.bind((host, port))
         server_socket.listen()
-
         return server_socket
 
     def broadcast(self, data: bytes) -> None:
@@ -42,20 +41,30 @@ class ChatServer:
                 self.nicknames.remove(nickname)
                 break
 
+    def _add_new_user_nickname(self, client_socket: socket.socket) -> str:
+        client_socket.send('NICKNAME'.encode('utf-8'))
+        nickname = client_socket.recv(1024).decode('utf-8')
+        self.nicknames.append(nickname)
+        self.clients.append(client_socket)
+        print(f'New User joined with nickname: {nickname}')
+        return nickname
+
+    def _thread_handle_client(self, client_socket: socket.socket):
+        thread = threading.Thread(target=self.handle_client, args=(client_socket,))
+        thread.start()
+
     def receive_messages(self):
+        print('Chat Server started...')
         while True:
             client_socket, address = self.server_socket.accept()
             print(f'New Client Connected - {address}')
-            client_socket.send('NICKNAME'.encode('utf-8'))
-            nickname = client_socket.recv(1024).decode('utf-8')
-            self.nicknames.append(nickname)
-            self.clients.append(client_socket)
-            print(f'Joined user under nickname: {nickname}')
+
+            nickname = self._add_new_user_nickname(client_socket)
+
             self.broadcast(f'New User: {nickname} - joined!'.encode('utf-8'))
             client_socket.send('Connected to server successfully!'.encode('utf-8'))
 
-            thread = threading.Thread(target=self.handle_client, args=(client_socket,))
-            thread.start()
+            self._thread_handle_client(client_socket)
 
 
 def run_server():

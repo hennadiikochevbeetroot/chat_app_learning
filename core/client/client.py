@@ -4,7 +4,7 @@ import threading
 
 
 class ChatClient:
-    def __init__(self, nickname: str):
+    def __init__(self, nickname: str) -> None:
         self.nickname = nickname
         self.client_socket = self._get_socket()
 
@@ -14,21 +14,21 @@ class ChatClient:
         client_socket.connect((host, port))
         return client_socket
 
-    def send_message(self):
+    def send_message(self) -> None:
         while True:
             message = input('>> ')
             formatted_message = f'{self.nickname}: {message}'
             self.client_socket.send(formatted_message.encode('utf-8'))
 
-    def receive_messages(self):
+    def receive_messages(self) -> None:
         while True:
             try:
                 message = self.client_socket.recv(1024).decode('utf-8')
-                if message == 'NICKNAME':
+                if message == 'NICKNAME':   # On start, automatically sends nickname
                     self.client_socket.send(self.nickname.encode('utf-8'))
                 else:
                     print(message)
-            except:  # WHen server stops / connection is broken
+            except:  # When server stops / connection is broken
                 print('Error occured!')
                 self.client_socket.close()
                 break
